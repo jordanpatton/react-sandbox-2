@@ -40,19 +40,23 @@ class ComputedInput extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (this.props.value !== nextProps.value) {
-            // re-calculate state
-            const valuePretty = nextProps.value;
-            let hasError = false;
-            let valueUgly;
-            try {
-                valueUgly = JSON.stringify(valuePretty);
-            } catch (e) {
-                hasError = true;
-            }
-            // update state
-            this.setState({ hasError, valuePretty, valueUgly });
+        /*
+         * NOTE: Intentionally skip (this.props.value !== nextProps.value) for this logic.
+         *       That comparision will cause a unique edge case to fail when valueUgly
+         *       has been desynchronized from the parent value due to being in an error
+         *       state but has finally re-entered a valid state.
+         */
+        // re-calculate state
+        const valuePretty = nextProps.value;
+        let hasError = false;
+        let valueUgly;
+        try {
+            valueUgly = JSON.stringify(valuePretty);
+        } catch (e) {
+            hasError = true;
         }
+        // update state
+        this.setState({ hasError, valuePretty, valueUgly });
     }
 
     onChangeIsUgly(event) {
@@ -81,7 +85,12 @@ class ComputedInput extends React.Component {
             <a
               href="#"
               style={{ textDecoration: 'none' }}
-              onClick={() => { if (typeof window !== 'undefined') {window.alert('error');} }}
+              onClick={(event) => {
+                  event.preventDefault();
+                  if (typeof window !== 'undefined') {
+                      window.alert('error');
+                  }
+              }}
             >
                 &#10071;
             </a>
@@ -89,7 +98,12 @@ class ComputedInput extends React.Component {
             <a
               href="#"
               style={{ marginLeft: '5px', textDecoration: 'none' }}
-              onClick={() => { if (typeof window !== 'undefined') {window.alert('information');} }}
+              onClick={(event) => {
+                  event.preventDefault();
+                  if (typeof window !== 'undefined') {
+                      window.alert('information');
+                  }
+              }}
             >
                 &#9432;
             </a>
