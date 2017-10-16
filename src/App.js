@@ -29,7 +29,14 @@ class ComputedInput extends React.Component {
     }
 
     onChangeValue(event) {
-        this.props.syncValue(event.target.value);
+        if (this.state.isUgly) {
+            try {
+                const parsedValue = JSON.parse(event.target.value);
+                this.props.syncValue(parsedValue);
+            } catch (e) { /* pass */ }
+        } else {
+            this.props.syncValue(event.target.value);
+        }
     }
 
     renderValueInput() {
