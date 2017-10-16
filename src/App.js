@@ -5,7 +5,7 @@ class ComputedInput extends React.Component {
     static get propTypes() {
         return {
             syncValue: PropTypes.func.isRequired,
-            value: PropTypes.any.isRequired,
+            value: PropTypes.any,
         };
     }
 
@@ -24,13 +24,13 @@ class ComputedInput extends React.Component {
 
         // attempt to auto-detect isUgly
         let isUgly = false;
-        // if (
-        //     Object.prototype.toString.call(valuePretty) === '[object Array]' ||
-        //     Object.prototype.toString.call(valuePretty) === '[object Null]' ||
-        //     valuePretty === ''
-        // ) {
-        //     isUgly = true;
-        // }
+        if (
+            Object.prototype.toString.call(valuePretty) === '[object Array]' ||
+            Object.prototype.toString.call(valuePretty) === '[object Null]' ||
+            valuePretty === ''
+        ) {
+            isUgly = true;
+        }
 
         // set initial state
         this.state = { hasError, isUgly, valuePretty, valueUgly };
@@ -120,6 +120,7 @@ class ComputedInput extends React.Component {
                   id="computed-input-value"
                   name="computed-input-value"
                   value={this.state.valueUgly}
+                  style={{ color: 'steelblue', fontFamily: 'monospace' }}
                   onChange={this.onChangeValue}
                 />
             );
@@ -162,7 +163,14 @@ class ComputedInput extends React.Component {
 class App extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { showComputedInput: true, value: 'string' };
+        this.state = {
+            showComputedInput: true,
+            // value: true,
+            // value: 1,
+            // value: 'asdf',
+            // value: [true, 1, 'asdf'],
+            value: null,
+        };
     }
 
     render() {
