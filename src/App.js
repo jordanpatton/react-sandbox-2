@@ -5,16 +5,13 @@ class ComputedInput extends React.Component {
     static get propTypes() {
         return {
             syncValue: PropTypes.func.isRequired,
-            value: PropTypes.any,
+            value: PropTypes.any.isRequired,
         };
     }
 
     constructor(props) {
         super(props);
-        this.state = {
-            isUgly: false,
-            value: props.value,
-        };
+        this.state = { isUgly: false };
         this.onChangeIsUgly = this.onChangeIsUgly.bind(this);
         this.onChangeValue = this.onChangeValue.bind(this);
     }
@@ -25,37 +22,69 @@ class ComputedInput extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         console.log('componentWillReceiveProps');
-        if (this.props.value !== nextProps.value) {
-            // reconcile child state with parent state
-            this.setState({ value: nextProps.value });
-        }
     }
 
     onChangeIsUgly(event) {
-        // set value locally; parent does not care about isUgly
         this.setState({ isUgly: event.target.checked });
     }
 
     onChangeValue(event) {
-        // sync value to parent rather than this.setState()
         this.props.syncValue(event.target.value);
     }
 
-    render() {
-        return (
-            <div>
+    renderValueInput() {
+        let buffer;
+        let hasError = false;
+
+        if (this.state.isUgly) {
+            let valueUgly;
+            try {
+                valueUgly = JSON.stringify(this.props.value);
+            } catch (e) {
+                hasError = true;
+            }
+            buffer = (
                 <input
                   type="text"
                   name="computed-input-value"
-                  value={this.state.value || ''}
+                  value={valueUgly}
                   onChange={this.onChangeValue}
                 />
+            );
+        } else {
+            buffer = (
+                <input
+                  type="text"
+                  name="computed-input-value"
+                  value={this.props.value}
+                  onChange={this.onChangeValue}
+                />
+            );
+        }
+
+        return { buffer, hasError };
+    }
+
+    render() {
+        const {
+            buffer: valueInputBuffer,
+            hasError: valueInputHasError,
+        } = this.renderValueInput();
+
+        return (
+            <div>
+                {valueInputBuffer}
                 <input
                   type="checkbox"
                   name="computed-input-is-ugly"
                   checked={this.state.isUgly || false}
                   onChange={this.onChangeIsUgly}
                 />
+                {valueInputHasError ? (
+                    <span style={{ textDecoration: 'none' }}>&#10071;</span>
+                ) : (
+                    <span style={{ textDecoration: 'none' }}>&#9432;</span>
+                )}
                 <div style={{ backgroundColor: '#EEEEEE' }}>
                     <code>{JSON.stringify(this.state)}</code>
                 </div>
