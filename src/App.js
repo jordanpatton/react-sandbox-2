@@ -25,8 +25,8 @@ class ComputedInput extends React.Component {
         // attempt to auto-detect isUgly
         let isUgly = false;
         if (
-            Object.prototype.toString.call(valuePretty) === '[object Array]' ||
-            Object.prototype.toString.call(valuePretty) === '[object Null]' ||
+            Array.isArray(valuePretty) ||
+            valuePretty === null ||
             valuePretty === ''
         ) {
             isUgly = true;
@@ -131,7 +131,10 @@ class ComputedInput extends React.Component {
               type="text"
               id="computed-input-value"
               name="computed-input-value"
-              value={this.state.valuePretty}
+              value={
+                  // React dislikes `null` on Controlled Components
+                  this.state.valuePretty === null ? '' : this.state.valuePretty
+              }
               onChange={this.onChangeValue}
             />
         );
