@@ -10,8 +10,21 @@ class ComputedInput extends React.Component {
     }
 
     constructor(props) {
+        console.log('constructor');
         super(props);
-        this.state = { isUgly: false };
+
+        // calculate initial state
+        const valuePretty = this.props.value;
+        let hasError = false;
+        let valueUgly;
+        try {
+            valueUgly = JSON.stringify(valuePretty);
+        } catch (e) {
+            hasError = true;
+        }
+        // set initial state
+        this.state = { hasError, isUgly: false, valuePretty, valueUgly };
+
         this.onChangeIsUgly = this.onChangeIsUgly.bind(this);
         this.onChangeValue = this.onChangeValue.bind(this);
     }
@@ -22,6 +35,19 @@ class ComputedInput extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         console.log('componentWillReceiveProps');
+        if (this.props.value !== nextProps.value) {
+            // re-calculate state
+            const valuePretty = nextProps.value;
+            let hasError = false;
+            let valueUgly;
+            try {
+                valueUgly = JSON.stringify(valuePretty);
+            } catch (e) {
+                hasError = true;
+            }
+            // update state
+            this.setState({ hasError, valuePretty, valueUgly });
+        }
     }
 
     onChangeIsUgly(event) {
@@ -31,63 +57,51 @@ class ComputedInput extends React.Component {
     onChangeValue(event) {
         if (this.state.isUgly) {
             try {
-                const parsedValue = JSON.parse(event.target.value);
-                this.props.syncValue(parsedValue);
-            } catch (e) { /* pass */ }
+                // parse ugly value and synchronize to parent
+                this.props.syncValue(JSON.parse(event.target.value));
+            } catch (e) {
+                // failed parse and synchronize; update own state
+                this.setState({ hasError: true, valueUgly: event.target.value });
+            }
         } else {
+            // synchronize pretty value to parent
             this.props.syncValue(event.target.value);
         }
     }
 
     renderValueInput() {
-        let buffer;
-        let hasError = false;
-
         if (this.state.isUgly) {
-            let valueUgly;
-            try {
-                valueUgly = JSON.stringify(this.props.value);
-            } catch (e) {
-                hasError = true;
-            }
-            buffer = (
+            return (
                 <input
                   type="text"
                   name="computed-input-value"
-                  value={valueUgly}
-                  onChange={this.onChangeValue}
-                />
-            );
-        } else {
-            buffer = (
-                <input
-                  type="text"
-                  name="computed-input-value"
-                  value={this.props.value}
+                  value={this.state.valueUgly}
                   onChange={this.onChangeValue}
                 />
             );
         }
-
-        return { buffer, hasError };
+        // else
+        return (
+            <input
+              type="text"
+              name="computed-input-value"
+              value={this.state.valuePretty}
+              onChange={this.onChangeValue}
+            />
+        );
     }
 
     render() {
-        const {
-            buffer: valueInputBuffer,
-            hasError: valueInputHasError,
-        } = this.renderValueInput();
-
         return (
             <div>
-                {valueInputBuffer}
+                {this.renderValueInput()}
                 <input
                   type="checkbox"
                   name="computed-input-is-ugly"
                   checked={this.state.isUgly || false}
                   onChange={this.onChangeIsUgly}
                 />
-                {valueInputHasError ? (
+                {this.state.hasError ? (
                     <span
                       aria-label="error"
                       role="img"
