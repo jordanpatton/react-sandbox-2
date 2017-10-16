@@ -81,9 +81,21 @@ class ComputedInput extends React.Component {
                   onChange={this.onChangeIsUgly}
                 />
                 {valueInputHasError ? (
-                    <span style={{ textDecoration: 'none' }}>&#10071;</span>
+                    <span
+                      aria-label="error"
+                      role="img"
+                      style={{ textDecoration: 'none' }}
+                    >
+                        &#10071;
+                    </span>
                 ) : (
-                    <span style={{ textDecoration: 'none' }}>&#9432;</span>
+                    <span
+                      aria-label="information"
+                      role="img"
+                      style={{ textDecoration: 'none' }}
+                    >
+                        &#9432;
+                    </span>
                 )}
                 <div style={{ backgroundColor: '#EEEEEE' }}>
                     <code>{JSON.stringify(this.state)}</code>
