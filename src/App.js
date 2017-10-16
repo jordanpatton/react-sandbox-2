@@ -21,8 +21,19 @@ class ComputedInput extends React.Component {
         } catch (e) {
             hasError = true;
         }
+
+        // attempt to auto-detect isUgly
+        let isUgly = false;
+        // if (
+        //     Object.prototype.toString.call(valuePretty) === '[object Array]' ||
+        //     Object.prototype.toString.call(valuePretty) === '[object Null]' ||
+        //     valuePretty === ''
+        // ) {
+        //     isUgly = true;
+        // }
+
         // set initial state
-        this.state = { hasError, isUgly: false, valuePretty, valueUgly };
+        this.state = { hasError, isUgly, valuePretty, valueUgly };
 
         this.onChangeIsUgly = this.onChangeIsUgly.bind(this);
         this.onChangeValue = this.onChangeValue.bind(this);
@@ -63,11 +74,36 @@ class ComputedInput extends React.Component {
         }
     }
 
+    renderStatusIcon() {
+        /* eslint-disable jsx-a11y/accessible-emoji */
+        /* eslint-disable jsx-a11y/href-no-hash */
+        return this.state.hasError ? (
+            <a
+              href="#"
+              style={{ textDecoration: 'none' }}
+              onClick={() => { if (typeof window !== 'undefined') {window.alert('error');} }}
+            >
+                &#10071;
+            </a>
+        ) : (
+            <a
+              href="#"
+              style={{ marginLeft: '5px', textDecoration: 'none' }}
+              onClick={() => { if (typeof window !== 'undefined') {window.alert('information');} }}
+            >
+                &#9432;
+            </a>
+        );
+        /* eslint-enable jsx-a11y/href-no-hash */
+        /* eslint-enable jsx-a11y/accessible-emoji */
+    }
+
     renderValueInput() {
         if (this.state.isUgly) {
             return (
                 <input
                   type="text"
+                  id="computed-input-value"
                   name="computed-input-value"
                   value={this.state.valueUgly}
                   onChange={this.onChangeValue}
@@ -78,32 +114,11 @@ class ComputedInput extends React.Component {
         return (
             <input
               type="text"
+              id="computed-input-value"
               name="computed-input-value"
               value={this.state.valuePretty}
               onChange={this.onChangeValue}
             />
-        );
-    }
-
-    renderStatusIcon() {
-        return this.state.hasError ? (
-            <span
-              aria-label="error"
-              role="img"
-              style={{ textDecoration: 'none' }}
-              onClick={() => { if (typeof window !== 'undefined') {window.alert('error');} }}
-            >
-                &#10071;
-            </span>
-        ) : (
-            <span
-              aria-label="information"
-              role="img"
-              style={{ textDecoration: 'none' }}
-              onClick={() => { if (typeof window !== 'undefined') {window.alert('information');} }}
-            >
-                &#9432;
-            </span>
         );
     }
 
@@ -113,10 +128,14 @@ class ComputedInput extends React.Component {
                 {this.renderValueInput()}
                 <input
                   type="checkbox"
+                  id="computed-input-is-ugly"
                   name="computed-input-is-ugly"
                   checked={this.state.isUgly || false}
                   onChange={this.onChangeIsUgly}
                 />
+                <label htmlFor="computed-input-is-ugly">
+                    ugly
+                </label>
                 {this.renderStatusIcon()}
                 <div style={{ backgroundColor: '#EEEEEE' }}>
                     <code>{JSON.stringify(this.state)}</code>
