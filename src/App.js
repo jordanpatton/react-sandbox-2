@@ -10,7 +10,6 @@ class ComputedInput extends React.Component {
     }
 
     constructor(props) {
-        console.log('constructor');
         super(props);
 
         // calculate initial state
@@ -29,12 +28,7 @@ class ComputedInput extends React.Component {
         this.onChangeValue = this.onChangeValue.bind(this);
     }
 
-    componentWillMount() {
-        console.log('componentWillMount');
-    }
-
     componentWillReceiveProps(nextProps) {
-        console.log('componentWillReceiveProps');
         if (this.props.value !== nextProps.value) {
             // re-calculate state
             const valuePretty = nextProps.value;
@@ -91,6 +85,28 @@ class ComputedInput extends React.Component {
         );
     }
 
+    renderStatusIcon() {
+        return this.state.hasError ? (
+            <span
+              aria-label="error"
+              role="img"
+              style={{ textDecoration: 'none' }}
+              onClick={() => { if (typeof window !== 'undefined') {window.alert('error');} }}
+            >
+                &#10071;
+            </span>
+        ) : (
+            <span
+              aria-label="information"
+              role="img"
+              style={{ textDecoration: 'none' }}
+              onClick={() => { if (typeof window !== 'undefined') {window.alert('information');} }}
+            >
+                &#9432;
+            </span>
+        );
+    }
+
     render() {
         return (
             <div>
@@ -101,23 +117,7 @@ class ComputedInput extends React.Component {
                   checked={this.state.isUgly || false}
                   onChange={this.onChangeIsUgly}
                 />
-                {this.state.hasError ? (
-                    <span
-                      aria-label="error"
-                      role="img"
-                      style={{ textDecoration: 'none' }}
-                    >
-                        &#10071;
-                    </span>
-                ) : (
-                    <span
-                      aria-label="information"
-                      role="img"
-                      style={{ textDecoration: 'none' }}
-                    >
-                        &#9432;
-                    </span>
-                )}
+                {this.renderStatusIcon()}
                 <div style={{ backgroundColor: '#EEEEEE' }}>
                     <code>{JSON.stringify(this.state)}</code>
                 </div>
@@ -129,19 +129,33 @@ class ComputedInput extends React.Component {
 class App extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { value: 'string' };
+        this.state = { showComputedInput: true, value: 'string' };
     }
 
     render() {
         return (
             <div style={{ padding: '10px', color: 'white', backgroundColor: 'steelblue' }}>
-                <div style={{ color: 'black', backgroundColor: 'white' }}>
-                    <ComputedInput
-                      syncValue={(newValue) => this.setState({value: newValue})}
-                      value={this.state.value}
-                    />
+                {this.state.showComputedInput ? (
+                    <div style={{ color: 'black', backgroundColor: 'white' }}>
+                        <ComputedInput
+                          syncValue={(newValue) => this.setState({value: newValue})}
+                          value={this.state.value}
+                        />
+                    </div>
+                ) : (
+                    <div>ComputedInput is hidden</div>
+                )}
+                <div style={{ marginTop: '10px' }}>
+                    <button
+                        type="button"
+                        onClick={() => this.setState({ showComputedInput: !this.state.showComputedInput })}
+                    >
+                        Toggle ComputedInput
+                    </button>
                 </div>
-                <code>{JSON.stringify(this.state)}</code>
+                <div style={{ marginTop: '10px' }}>
+                    <code>{JSON.stringify(this.state)}</code>
+                </div>
             </div>
         );
     }
